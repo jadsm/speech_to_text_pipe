@@ -7,7 +7,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/juandelgado/Desktop/Juan/
 
 wav_transform_flag = False
 savewav_flag = False
-
+batch_size = 30
 
 # Usage example
 m4a_file = "data/New Recording 38.m4a"
@@ -20,16 +20,25 @@ if wav_transform_flag:
 wav_file = "data/New Recording 38.wav"
 audio_data, sample_width, num_channels, sample_rate = read_wav_file(wav_file)
 
-# Cut sound file to 10 seconds
-ten_seconds = 10 * sample_rate  # 10 seconds in frames
-audio_data_cut = audio_data[:ten_seconds]
+T = ""
+Tp = ""
 
-# write to 
-if savewav_flag:
-    write_wav(audio_data_cut, sample_width, num_channels, sample_rate,ten_seconds)
+for i in range(0, len(audio_data), sample_rate * batch_size):
 
-# Usage example
-text = transcribe_speech(audio_data_cut, sample_rate)
+    # Cut sound file to x seconds
+    audio_data_cut = audio_data[i:i+batch_size * sample_rate]
 
-text_with_punctuation = add_punctuation(text)
+    # write to 
+    if savewav_flag:
+        write_wav(audio_data_cut, sample_width, num_channels, sample_rate, sample_rate * batch_size)
 
+    # Usage example
+    text = transcribe_speech(audio_data_cut, sample_rate)
+
+    text_with_punctuation = add_punctuation(text)
+
+    # add to text
+    Tp += text_with_punctuation
+    T += " "+text
+
+T = add_punctuation(T)
